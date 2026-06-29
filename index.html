@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ฟังเสียงโซเชียล · Doctor's Feud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --stage-1:#0a1230; --stage-2:#14205a; --stage-glow:#1d2e7a;
+    --gold:#ffd166; --gold-deep:#f4b740;
+    --panel-1:#0e8a86; --panel-2:#19c2c9;
+    --slot:#1b2860; --slot-edge:#2c3d86;
+    --strike:#ff4d5e; --ink:#0a1230; --paper:#f6f8ff;
+    --muted:#9fb0e8;
+    --display:'Kanit',system-ui,sans-serif;
+    --body:'IBM Plex Sans Thai','Kanit',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--body);
+    color:var(--paper);
+    background:
+      radial-gradient(1200px 600px at 50% -10%, var(--stage-glow), transparent 60%),
+      linear-gradient(165deg, var(--stage-2), var(--stage-1) 70%);
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    overflow-x:hidden;
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:grid; grid-template-columns:1fr auto 1fr;
+    align-items:center; gap:16px;
+    padding:18px clamp(14px,3vw,40px) 6px;
+  }
+  .brand{display:flex; flex-direction:column; line-height:1}
+  .brand .eyebrow{
+    font-family:var(--display); font-weight:600; font-size:12px;
+    letter-spacing:.32em; color:var(--gold); text-transform:uppercase;
+  }
+  .brand h1{
+    font-family:var(--display); font-weight:800;
+    font-size:clamp(20px,2.4vw,30px); margin-top:4px;
+  }
+  .brand h1 span{color:var(--gold)}
+
+  .team{
+    display:flex; align-items:center; gap:10px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px; padding:8px 12px;
+  }
+  .team.right{justify-self:end}
+  .team .name{font-family:var(--display); font-weight:600; font-size:13px; color:var(--muted)}
+  .team .score{
+    font-family:var(--display); font-weight:800; font-size:clamp(26px,3vw,40px);
+    color:var(--gold); min-width:2ch; text-align:center;
+  }
+  .team .pot-btn{
+    font-family:var(--display); font-weight:600; font-size:11px;
+    border:none; cursor:pointer; border-radius:10px; padding:6px 9px;
+    background:linear-gradient(180deg,var(--gold),var(--gold-deep)); color:var(--ink);
+    transition:transform .08s ease, filter .15s ease;
+  }
+  .team .pot-btn:hover{filter:brightness(1.05)}
+  .team .pot-btn:active{transform:scale(.95)}
+  .team .name-input{
+    font-family:var(--display); font-weight:600; font-size:13px;
+    background:transparent; border:none; color:var(--paper); width:7.5ch;
+    border-bottom:1px dashed transparent; padding:2px 0;
+  }
+  .team .name-input:focus{outline:none; border-bottom-color:var(--gold)}
+
+  /* ---------- question rail ---------- */
+  .rail{
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    padding:4px clamp(14px,3vw,40px);
+  }
+  .pip-track{display:flex; gap:7px; flex-wrap:wrap; justify-content:center; max-width:60vw}
+  .pip{
+    width:26px; height:26px; border-radius:8px; cursor:pointer; border:none;
+    font-family:var(--display); font-weight:700; font-size:12px;
+    background:rgba(255,255,255,.06); color:var(--muted);
+    transition:all .15s ease;
+  }
+  .pip:hover{background:rgba(255,255,255,.14); color:#fff}
+  .pip.active{background:linear-gradient(180deg,var(--gold),var(--gold-deep)); color:var(--ink); transform:translateY(-1px)}
+  .pip.done{color:var(--gold)}
+
+  /* ---------- board ---------- */
+  .stage{
+    flex:1; display:flex; flex-direction:column; align-items:center;
+    padding:10px clamp(14px,3vw,40px) 0; width:100%;
+  }
+  .qhead{
+    text-align:center; max-width:920px; margin:6px auto 14px;
+  }
+  .qhead .qno{
+    font-family:var(--display); font-weight:600; font-size:13px;
+    letter-spacing:.2em; color:var(--gold); text-transform:uppercase;
+  }
+  .qhead .qtext{
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(20px,2.7vw,32px); line-height:1.25; margin-top:6px;
+  }
+
+  .board{
+    width:100%; max-width:940px;
+    background:linear-gradient(180deg, rgba(255,209,102,.16), rgba(255,209,102,.05));
+    border:2px solid rgba(255,209,102,.35);
+    border-radius:24px; padding:clamp(12px,1.6vw,20px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:clamp(8px,1vw,12px);
+  }
+  @media(max-width:680px){ .grid{grid-template-columns:1fr} }
+
+  .slot{
+    position:relative; height:clamp(52px,6.4vh,72px);
+    border-radius:14px; cursor:pointer; perspective:1000px;
+    border:none; background:none; padding:0; font-family:inherit; text-align:left;
+  }
+  .slot-inner{
+    position:absolute; inset:0; transition:transform .5s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+  }
+  .slot.revealed .slot-inner{transform:rotateX(180deg)}
+  .face{
+    position:absolute; inset:0; border-radius:14px;
+    display:flex; align-items:center; backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    padding:0 14px; overflow:hidden;
+  }
+  .face.front{
+    background:linear-gradient(180deg,var(--slot),#152055);
+    border:1px solid var(--slot-edge);
+    justify-content:center;
+  }
+  .face.front .rank{
+    font-family:var(--display); font-weight:800;
+    font-size:clamp(22px,3vw,30px); color:var(--gold);
+    text-shadow:0 2px 0 rgba(0,0,0,.3);
+  }
+  .face.back{
+    transform:rotateX(180deg);
+    background:linear-gradient(180deg,var(--panel-2),var(--panel-1));
+    color:#022; justify-content:space-between; gap:10px;
+  }
+  .face.back .ans{
+    font-family:var(--body); font-weight:600;
+    font-size:clamp(14px,1.55vw,19px); line-height:1.15;
+  }
+  .face.back .pts{
+    font-family:var(--display); font-weight:800;
+    font-size:clamp(20px,2.4vw,28px);
+    background:rgba(2,34,34,.16); border-radius:10px;
+    padding:2px 12px; min-width:2.2ch; text-align:center;
+  }
+
+  /* ---------- under-board controls ---------- */
+  .ctrlbar{
+    width:100%; max-width:940px; margin:14px auto 4px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    flex-wrap:wrap;
+  }
+  .pot{
+    display:flex; align-items:center; gap:12px;
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+    border-radius:16px; padding:8px 16px;
+  }
+  .pot .lbl{font-family:var(--display); font-weight:600; font-size:12px; color:var(--muted); letter-spacing:.1em}
+  .pot .val{font-family:var(--display); font-weight:800; font-size:clamp(26px,3.2vw,40px); color:var(--gold)}
+
+  .strikes{display:flex; gap:8px}
+  .x{
+    width:clamp(34px,4vw,46px); height:clamp(34px,4vw,46px);
+    border-radius:12px; border:2px solid rgba(255,77,94,.35);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--display); font-weight:800; font-size:clamp(18px,2.4vw,26px);
+    color:rgba(255,77,94,.25); cursor:pointer; transition:all .15s ease;
+    background:transparent;
+  }
+  .x.on{color:#fff; background:linear-gradient(180deg,var(--strike),#d62f40); border-color:transparent; box-shadow:0 6px 18px -6px var(--strike)}
+  .x:hover{transform:translateY(-1px)}
+
+  .nav{display:flex; gap:10px}
+  .btn{
+    font-family:var(--display); font-weight:600; font-size:14px;
+    border:1px solid rgba(255,255,255,.14); cursor:pointer;
+    border-radius:12px; padding:10px 18px;
+    background:rgba(255,255,255,.05); color:var(--paper);
+    transition:all .12s ease;
+  }
+  .btn:hover{background:rgba(255,255,255,.12)}
+  .btn:active{transform:scale(.97)}
+  .btn.primary{background:linear-gradient(180deg,var(--gold),var(--gold-deep)); color:var(--ink); border-color:transparent}
+  .btn.ghost{font-size:12px; padding:8px 12px; color:var(--muted)}
+
+  /* ---------- strike overlay ---------- */
+  .overlay{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(5,8,24,.55); backdrop-filter:blur(2px);
+    opacity:0; pointer-events:none; transition:opacity .18s ease; z-index:50;
+  }
+  .overlay.show{opacity:1}
+  .bigx{
+    font-family:var(--display); font-weight:800; color:var(--strike);
+    font-size:min(46vw,340px); line-height:1;
+    text-shadow:0 0 60px rgba(255,77,94,.6);
+    animation:pop .3s cubic-bezier(.2,1.4,.4,1);
+  }
+  @keyframes pop{0%{transform:scale(.3); opacity:0} 60%{transform:scale(1.12)} 100%{transform:scale(1)}}
+
+  .note{
+    font-family:var(--body); font-size:12px; color:var(--muted);
+    text-align:center; padding:14px 20px 22px; max-width:760px; margin:0 auto;
+  }
+  .note b{color:var(--gold); font-weight:600}
+  .audio-toggle{
+    position:fixed; top:14px; right:14px; z-index:40;
+    font-family:var(--display); font-size:11px; color:var(--muted);
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    border-radius:20px; padding:6px 12px; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+  <button class="audio-toggle" id="audioToggle">🔊 เสียง: เปิด</button>
+
+  <header class="topbar">
+    <div class="team" id="teamA">
+      <span class="score" id="scoreA">0</span>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <input class="name-input" id="nameA" value="ทีมซ้าย" aria-label="ชื่อทีมซ้าย">
+        <button class="pot-btn" data-team="A">+ รับคะแนนรอบ</button>
+      </div>
+    </div>
+
+    <div class="brand">
+      <span class="eyebrow">Social Listening Edition</span>
+      <h1>ฟังเสียงโซเชียล <span>·</span> Doctor's Feud</h1>
+    </div>
+
+    <div class="team right" id="teamB">
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        <input class="name-input" id="nameB" value="ทีมขวา" style="text-align:right" aria-label="ชื่อทีมขวา">
+        <button class="pot-btn" data-team="B">+ รับคะแนนรอบ</button>
+      </div>
+      <span class="score" id="scoreB">0</span>
+    </div>
+  </header>
+
+  <div class="rail">
+    <div class="pip-track" id="pips"></div>
+  </div>
+
+  <main class="stage">
+    <div class="qhead">
+      <div class="qno" id="qno">คำถาม 1 / 10</div>
+      <div class="qtext" id="qtext"></div>
+    </div>
+
+    <div class="board">
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="ctrlbar">
+      <div class="pot">
+        <span class="lbl">คะแนนรอบนี้</span>
+        <span class="val" id="potVal">0</span>
+      </div>
+
+      <div class="strikes" id="strikes">
+        <button class="x" data-i="0">✕</button>
+        <button class="x" data-i="1">✕</button>
+        <button class="x" data-i="2">✕</button>
+      </div>
+
+      <div class="nav">
+        <button class="btn" id="prevBtn">‹ ก่อนหน้า</button>
+        <button class="btn primary" id="nextBtn">ถัดไป ›</button>
+      </div>
+    </div>
+
+    <div class="ctrlbar" style="margin-top:8px">
+      <button class="btn ghost" id="revealAll">เปิดทุกช่อง</button>
+      <button class="btn ghost" id="resetRound">เริ่มรอบนี้ใหม่</button>
+      <button class="btn ghost" id="resetGame">ล้างคะแนนทั้งเกม</button>
+    </div>
+
+    <p class="note">
+      วิธีเล่น: อ่านคำถาม ให้ผู้เล่นทาย แล้ว<b>คลิกช่อง</b>เพื่อเปิดคำตอบ — คะแนนจะสะสมใน "คะแนนรอบนี้"
+      ทายผิดกด <b>✕</b> (สูงสุด 3 ครั้ง) เมื่อจบรอบกด <b>+ รับคะแนนรอบ</b> ให้ทีมที่ชนะ ·
+      คะแนนอ้างอิงจากการฟังเสียงโซเชียลไทย ไม่ใช่ข้อเท็จจริงทางคลินิก
+    </p>
+  </main>
+
+  <div class="overlay" id="overlay"><div class="bigx">✕</div></div>
+
+<script>
+const QUESTIONS = [
+  { q:"เมื่อรู้สึกไม่สบายเล็กน้อย สิ่งแรกที่คนไทยทำ “ก่อน” ไปหาหมอคือ?",
+    a:[["เสิร์ช Google อาการตัวเอง",31],["กินยาที่มีในบ้าน / ยาสามัญ",23],["ถามคนในครอบครัว / ผู้ใหญ่",17],["ปล่อยดูอาการก่อน เดี๋ยวหายเอง",13],["ไปร้านยา ปรึกษาเภสัช",10],["ถาม AI / ChatGPT",6]] },
+  { q:"คำหรือแฮชแท็กสายสุขภาพที่คนไทยพูดถึงบ่อยที่สุดในโซเชียล",
+    a:[["ออกกำลังกาย / เข้ายิม",24],["กินคลีน / คลีนอีตติ้ง",22],["สุขภาพจิต / เครียด / Burnout",18],["การนอน / นอนไม่หลับ",14],["IF (อดอาหารเป็นช่วง)",13],["คอลลาเจน / อาหารเสริม",9]] },
+  { q:"เรื่องที่คนไทยชอบ “บ่น” ที่สุดเกี่ยวกับการไปโรงพยาบาล",
+    a:[["รอนานมาก",35],["ค่าใช้จ่ายแพง",21],["หาที่จอดรถยาก",17],["ขั้นตอน / เอกสารเยอะ",13],["นัดคิวยาวเป็นเดือน",8],["คุยกับหมอไม่ทัน / ไม่เข้าใจ",6]] },
+  { q:"พอพูดถึง “คนสุขภาพดี / หุ่นดี” คนไทยในโซเชียลนึกถึงใครก่อน?",
+    a:[["เทรนเนอร์ / ฟิตเนสอินฟลู",29],["ดารา - นักแสดง",24],["นักกีฬา",19],["หมออินฟลู (หมอออนไลน์)",13],["ลุงป้าออกกำลังในสวน",9],["สายมู / กินตามดวง",6]] },
+  { q:"ของกินที่คนไทย “เชื่อ” ว่าดีต่อสุขภาพ (จะจริงหรือไม่อีกเรื่อง)",
+    a:[["น้ำมะนาว / น้ำอุ่นตอนเช้า",22],["ผักผลไม้ / สลัด",21],["ฟ้าทะลายโจร / สมุนไพร",18],["น้ำขิง",15],["อกไก่ / โปรตีนคลีน",14],["โยเกิร์ต / อาหารหมัก (โพรไบโอติก)",10]] },
+  { q:"เหตุผลที่คนไทยซื้ออาหารเสริม / วิตามิน",
+    a:[["อยากผิวสวย / ขาว / ดูเด็ก",27],["เสริมภูมิ กลัวป่วย",23],["เห็นรีวิวจากอินฟลู",18],["คนรอบตัวแนะนำ",14],["อยากผอม / ลดน้ำหนัก",11],["เครียด / นอนไม่หลับ",7]] },
+  { q:"เป้าหมายสุขภาพปีใหม่ที่คนไทยตั้งไว้ แต่มัก “ล้มเหลว” ก่อนใคร",
+    a:[["ออกกำลังกาย / สมัครยิม",31],["ลดน้ำหนัก / เลิกของหวาน",25],["นอนเร็วขึ้น",16],["กินคลีน",13],["ลด / เลิกกาแฟ - เหล้า",9],["ดื่มน้ำวันละ 8 แก้ว",6]] },
+  { q:"เทรนด์สุขภาพจาก TikTok / โซเชียล ที่คนไทยชอบ “ลองทำตาม”",
+    a:[["IF / อดอาหารเป็นช่วง",25],["ดีท็อกซ์ / น้ำคลอโรฟิลล์",19],["งดเหล้า / ม็อกเทล (Dry month)",16],["มอร์นิ่งรูทีน / จัดการการนอน",15],["วิ่ง / ลงงานมาราธอน",15],["แช่น้ำเย็น (cold plunge)",10]] },
+  { q:"คำที่คนไทยใช้ “บ่นว่าตัวเองไม่สบาย” แบบไม่เป็นทางการในโซเชียล",
+    a:[["ออฟฟิศซินโดรม",30],["เบิร์นเอาต์ / หมดไฟ",20],["นอนไม่พอ / อดนอน",18],["ภูมิแพ้ / แพ้อากาศ",14],["เครียด / ป่วยใจ",12],["ลองโควิด",6]] },
+  { q:"อาการที่คนไทยชอบ “เสิร์ชหาเอง” ก่อนตัดสินใจไปหาหมอ",
+    a:[["ปวดหัว / ไมเกรน",25],["ปวดท้อง",20],["ผื่นคัน / ผิวหนังผิดปกติ",17],["ใจสั่น / นอนไม่หลับ",16],["เครียด / ซึมเศร้า",14],["เจ็บคอ / ตาแดง",8]] },
+];
+
+let idx = 0;
+let pot = 0;
+let scoreA = 0, scoreB = 0;
+let revealed = [];          // per current question
+let strikes = [false,false,false];
+let doneRounds = new Set(); // questions fully revealed at least once
+let soundOn = true;
+
+const $ = id => document.getElementById(id);
+
+/* ---------- audio ---------- */
+let actx = null;
+function beep(type){
+  if(!soundOn) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.connect(g); g.connect(actx.destination);
+    if(type==='reveal'){ o.type='sine'; o.frequency.setValueAtTime(660,actx.currentTime); o.frequency.exponentialRampToValueAtTime(990,actx.currentTime+.12); }
+    else { o.type='sawtooth'; o.frequency.setValueAtTime(180,actx.currentTime); o.frequency.exponentialRampToValueAtTime(70,actx.currentTime+.35); }
+    g.gain.setValueAtTime(.18,actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+(type==='reveal'?.18:.4));
+    o.start(); o.stop(actx.currentTime+(type==='reveal'?.2:.42));
+  }catch(e){}
+}
+
+/* ---------- render ---------- */
+function renderPips(){
+  const wrap = $('pips'); wrap.innerHTML='';
+  QUESTIONS.forEach((_,i)=>{
+    const b=document.createElement('button');
+    b.className='pip'+(i===idx?' active':'')+(doneRounds.has(i)?' done':'');
+    b.textContent=i+1;
+    b.onclick=()=>{ idx=i; loadQuestion(); };
+    wrap.appendChild(b);
+  });
+}
+
+function loadQuestion(){
+  const Q = QUESTIONS[idx];
+  revealed = revealed.length===Q.a.length ? revealed : new Array(Q.a.length).fill(false);
+  if(!QUESTIONS[idx]._rev) QUESTIONS[idx]._rev = new Array(Q.a.length).fill(false);
+  revealed = QUESTIONS[idx]._rev;
+  strikes = QUESTIONS[idx]._str || [false,false,false];
+  QUESTIONS[idx]._str = strikes;
+  pot = QUESTIONS[idx]._pot || 0;
+  QUESTIONS[idx]._pot = pot;
+
+  $('qno').textContent = `คำถาม ${idx+1} / ${QUESTIONS.length}`;
+  $('qtext').textContent = Q.q;
+
+  const grid = $('grid'); grid.innerHTML='';
+  Q.a.forEach((pair,i)=>{
+    const [ans,pts]=pair;
+    const slot=document.createElement('button');
+    slot.className='slot'+(revealed[i]?' revealed':'');
+    slot.innerHTML=`
+      <div class="slot-inner">
+        <div class="face front"><span class="rank">${i+1}</span></div>
+        <div class="face back"><span class="ans">${ans}</span><span class="pts">${pts}</span></div>
+      </div>`;
+    slot.onclick=()=>toggleSlot(i);
+    grid.appendChild(slot);
+  });
+
+  renderStrikes();
+  renderPips();
+  $('potVal').textContent = pot;
+  $('prevBtn').disabled = idx===0;
+}
+
+function toggleSlot(i){
+  const Q=QUESTIONS[idx];
+  if(revealed[i]) return;          // reveal-only, no un-reveal by tap
+  revealed[i]=true;
+  pot += Q.a[i][1];
+  QUESTIONS[idx]._pot = pot;
+  if(revealed.every(Boolean)) doneRounds.add(idx);
+  beep('reveal');
+  $('potVal').textContent = pot;
+  document.querySelectorAll('.slot')[i].classList.add('revealed');
+  renderPips();
+}
+
+function renderStrikes(){
+  document.querySelectorAll('.x').forEach((el,i)=> el.classList.toggle('on',strikes[i]));
+}
+
+function addStrike(i){
+  strikes[i]=!strikes[i];
+  QUESTIONS[idx]._str=strikes;
+  renderStrikes();
+  if(strikes[i]){ beep('strike'); flashX(); }
+}
+
+function flashX(){
+  const o=$('overlay'); o.classList.add('show');
+  setTimeout(()=>o.classList.remove('show'),650);
+}
+
+/* ---------- controls ---------- */
+$('nextBtn').onclick=()=>{ idx=(idx+1)%QUESTIONS.length; loadQuestion(); };
+$('prevBtn').onclick=()=>{ if(idx>0){idx--; loadQuestion();} };
+$('revealAll').onclick=()=>{
+  const Q=QUESTIONS[idx];
+  Q.a.forEach((p,i)=>{ if(!revealed[i]){ revealed[i]=true; pot+=p[1]; } });
+  QUESTIONS[idx]._pot=pot; doneRounds.add(idx);
+  $('potVal').textContent=pot; beep('reveal'); loadQuestion();
+};
+$('resetRound').onclick=()=>{
+  QUESTIONS[idx]._rev=new Array(QUESTIONS[idx].a.length).fill(false);
+  QUESTIONS[idx]._str=[false,false,false];
+  QUESTIONS[idx]._pot=0;
+  loadQuestion();
+};
+$('resetGame').onclick=()=>{
+  if(!confirm('ล้างคะแนนทั้งเกมและเปิดคำถามใหม่ทั้งหมด?')) return;
+  QUESTIONS.forEach(Q=>{ Q._rev=new Array(Q.a.length).fill(false); Q._str=[false,false,false]; Q._pot=0; });
+  scoreA=0; scoreB=0; doneRounds=new Set(); idx=0;
+  $('scoreA').textContent=0; $('scoreB').textContent=0;
+  loadQuestion();
+};
+document.querySelectorAll('.x').forEach(el=> el.onclick=()=>addStrike(+el.dataset.i));
+document.querySelectorAll('.pot-btn').forEach(b=> b.onclick=()=>{
+  if(b.dataset.team==='A'){ scoreA+=pot; $('scoreA').textContent=scoreA; }
+  else { scoreB+=pot; $('scoreB').textContent=scoreB; }
+  beep('reveal');
+});
+$('audioToggle').onclick=()=>{
+  soundOn=!soundOn;
+  $('audioToggle').textContent = soundOn ? '🔊 เสียง: เปิด' : '🔇 เสียง: ปิด';
+};
+
+/* keyboard: ← → navigate, 1-6 reveal, x strike */
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='ArrowRight') $('nextBtn').click();
+  else if(e.key==='ArrowLeft') $('prevBtn').click();
+  else if(/^[1-6]$/.test(e.key)){ const i=+e.key-1; if(i<QUESTIONS[idx].a.length) toggleSlot(i); }
+  else if(e.key.toLowerCase()==='x'){ const f=strikes.findIndex(s=>!s); if(f>=0) addStrike(f); }
+});
+
+loadQuestion();
+</script>
+</body>
+</html>
