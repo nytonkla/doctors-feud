@@ -21,6 +21,20 @@
 - เรียงคำตอบจากคะแนนมากไปน้อย (ลำดับนี้คือลำดับช่องบนกระดาน 1-6)
 - เพิ่ม/ลบคำถามได้ตามต้องการ ไม่ต้องแก้ไฟล์อื่น
 
+## แก้ข้อความแบรนด์ (eyebrow + ชื่อเกม)
+แก้ออบเจ็กต์ `BRAND` ในไฟล์ `questions.js` เดียวกัน:
+
+```js
+const BRAND = {
+  eyebrow: "Social Listening Edition",
+  titlePrefix: "ฟังเสียงโซเชียล",
+  titleAccent: "·",
+  titleSuffix: "Doctor's Feud",
+};
+```
+
+`titleAccent` คือส่วนที่ขึ้นสีทองตรงกลางชื่อเกม
+
 ## Deploy (GitHub Pages)
 Settings → Pages → Source: Deploy from a branch → `main` / `(root)` → Save
 URL: `https://<username>.github.io/<repo>/`

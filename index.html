@@ -58,7 +58,7 @@
   .team.right{justify-content:flex-end}
   .team .name{font-family:var(--display); font-weight:600; font-size:13px; color:var(--muted)}
   .team .score{
-    font-family:var(--display); font-weight:800; font-size:clamp(26px,3vw,40px);
+    font-family:var(--display); font-weight:800; font-size:clamp(52px,6vw,80px);
     color:var(--gold); min-width:2ch; text-align:center;
   }
   .team .pot-btn{
@@ -243,8 +243,8 @@
     </div>
 
     <div class="brand">
-      <span class="eyebrow">Social Listening Edition</span>
-      <h1>ฟังเสียงโซเชียล <span>·</span> Doctor's Feud</h1>
+      <span class="eyebrow" id="brandEyebrow"></span>
+      <h1 id="brandTitle"></h1>
     </div>
 
     <div class="team right" id="teamB">
@@ -446,6 +446,17 @@ document.addEventListener('keydown',e=>{
   else if(/^[1-6]$/.test(e.key)){ const i=+e.key-1; if(i<QUESTIONS[idx].a.length) toggleSlot(i); }
   else if(e.key.toLowerCase()==='x'){ const f=strikes.findIndex(s=>!s); if(f>=0) addStrike(f); }
 });
+
+function renderBrand(){
+  $('brandEyebrow').textContent = BRAND.eyebrow;
+  const h1 = $('brandTitle');
+  h1.innerHTML = '';
+  h1.append(BRAND.titlePrefix + ' ');
+  const accent = document.createElement('span');
+  accent.textContent = BRAND.titleAccent;
+  h1.append(accent, ' ' + BRAND.titleSuffix);
+}
+renderBrand();
 
 loadQuestion();
 </script>
