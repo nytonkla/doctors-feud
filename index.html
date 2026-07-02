@@ -6,26 +6,31 @@
 <title>ฟังเสียงโซเชียล · Doctor's Feud</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&family=Kanit:wght@400;500;700&family=IBM+Plex+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+  /* ---------- Wisesight Brandbook tokens: https://wisesight.github.io/brandbook/ ---------- */
   :root{
-    --stage-1:#0a1230; --stage-2:#14205a; --stage-glow:#1d2e7a;
-    --gold:#ffd166; --gold-deep:#f4b740;
-    --panel-1:#0e8a86; --panel-2:#19c2c9;
-    --slot:#1b2860; --slot-edge:#2c3d86;
-    --strike:#ff4d5e; --ink:#0a1230; --paper:#f6f8ff;
-    --muted:#9fb0e8;
-    --display:'Kanit',system-ui,sans-serif;
-    --body:'IBM Plex Sans Thai','Kanit',system-ui,sans-serif;
+    --red:#850117;        /* Wisesight Red — accents/CTA/alerts only, ~10% max */
+    --black:#101820;       /* Wisesight Black — primary surface / typography */
+    --gray:#CDCFDB;        /* Wisesight Gray — secondary info / dividers */
+    --white:#FFFFFF;
+    --gray-100:#F2F3F6;
+
+    --r-sm:2px; --r-md:4px; --r-lg:8px; --r-pill:9999px; /* approved radii only */
+
+    --shadow-1:0px 2px 6px 0px rgba(0,0,0,.10);   /* light bg */
+    --shadow-3:0px 8px 24px 0px rgba(0,0,0,.25);  /* featured content */
+
+    --ui:'Roboto',system-ui,sans-serif;                          /* Wisesight primary UI font */
+    --display:'Kanit','Roboto',system-ui,sans-serif;             /* content heading font */
+    --body:'IBM Plex Sans Thai','Kanit',system-ui,sans-serif;    /* content body font */
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{
     font-family:var(--body);
-    color:var(--paper);
-    background:
-      radial-gradient(1200px 600px at 50% -10%, var(--stage-glow), transparent 60%),
-      linear-gradient(165deg, var(--stage-2), var(--stage-1) 70%);
+    color:var(--white);
+    background:var(--black); /* Hero/Title combo: black surface */
     min-height:100vh;
     display:flex; flex-direction:column;
     overflow-x:hidden;
@@ -37,44 +42,45 @@
     align-items:center; gap:16px;
     padding:18px clamp(14px,3vw,40px) 6px;
   }
-  .brand{display:flex; flex-direction:column; line-height:1}
+  .brand{display:flex; flex-direction:column; line-height:1; align-items:center}
   .brand .eyebrow{
-    font-family:var(--display); font-weight:600; font-size:12px;
-    letter-spacing:.32em; color:var(--gold); text-transform:uppercase;
+    font-family:var(--ui); font-weight:600; font-size:12px;
+    letter-spacing:.32em; color:var(--red); text-transform:uppercase;
   }
   .brand h1{
-    font-family:var(--display); font-weight:800;
+    font-family:var(--display); font-weight:700; color:var(--white);
     font-size:clamp(20px,2.4vw,30px); margin-top:4px;
   }
-  .brand h1 span{color:var(--gold)}
+  .brand h1 span{color:var(--red)}
 
   .team{
     display:flex; align-items:center; gap:10px;
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:16px; padding:8px 12px;
+    background:var(--gray-100);
+    border:1px solid var(--gray);
+    border-radius:var(--r-lg); padding:8px 12px;
     width:100%; box-sizing:border-box;
+    box-shadow:var(--shadow-1);
   }
   .team.right{justify-content:flex-end}
-  .team .name{font-family:var(--display); font-weight:600; font-size:13px; color:var(--muted)}
+  .team .name{font-family:var(--ui); font-weight:600; font-size:13px; color:var(--black)}
   .team .score{
-    font-family:var(--display); font-weight:800; font-size:clamp(52px,6vw,80px);
-    color:var(--gold); min-width:2ch; text-align:center;
+    font-family:var(--display); font-weight:700; font-size:clamp(52px,6vw,80px);
+    color:var(--red); min-width:2ch; text-align:center;
   }
   .team .pot-btn{
-    font-family:var(--display); font-weight:600; font-size:11px;
-    border:none; cursor:pointer; border-radius:10px; padding:6px 9px;
-    background:linear-gradient(180deg,var(--gold),var(--gold-deep)); color:var(--ink);
+    font-family:var(--ui); font-weight:600; font-size:11px;
+    border:none; cursor:pointer; border-radius:var(--r-lg); padding:6px 9px;
+    background:var(--red); color:var(--white);
     transition:transform .08s ease, filter .15s ease;
   }
-  .team .pot-btn:hover{filter:brightness(1.05)}
+  .team .pot-btn:hover{filter:brightness(1.12)}
   .team .pot-btn:active{transform:scale(.95)}
   .team .name-input{
-    font-family:var(--display); font-weight:600; font-size:13px;
-    background:transparent; border:none; color:var(--paper); width:7.5ch;
+    font-family:var(--ui); font-weight:600; font-size:13px;
+    background:transparent; border:none; color:var(--black); width:7.5ch;
     border-bottom:1px dashed transparent; padding:2px 0;
   }
-  .team .name-input:focus{outline:none; border-bottom-color:var(--gold)}
+  .team .name-input:focus{outline:none; border-bottom-color:var(--red)}
 
   /* ---------- question rail ---------- */
   .rail{
@@ -83,14 +89,14 @@
   }
   .pip-track{display:flex; gap:7px; flex-wrap:wrap; justify-content:center; max-width:60vw}
   .pip{
-    width:26px; height:26px; border-radius:8px; cursor:pointer; border:none;
-    font-family:var(--display); font-weight:700; font-size:12px;
-    background:rgba(255,255,255,.06); color:var(--muted);
+    width:26px; height:26px; border-radius:var(--r-lg); cursor:pointer; border:1px solid var(--gray);
+    font-family:var(--ui); font-weight:700; font-size:12px;
+    background:var(--gray-100); color:var(--black);
     transition:all .15s ease;
   }
-  .pip:hover{background:rgba(255,255,255,.14); color:#fff}
-  .pip.active{background:linear-gradient(180deg,var(--gold),var(--gold-deep)); color:var(--ink); transform:translateY(-1px)}
-  .pip.done{color:var(--gold)}
+  .pip:hover{background:var(--white)}
+  .pip.active{background:var(--red); color:var(--white); border-color:transparent; transform:translateY(-1px)}
+  .pip.done{color:var(--red); border-color:var(--red)}
 
   /* ---------- board ---------- */
   .stage{
@@ -99,22 +105,24 @@
   }
   .qhead{
     text-align:center; max-width:920px; margin:6px auto 14px;
+    background:var(--white); border-radius:var(--r-lg);
+    padding:14px 20px; box-shadow:var(--shadow-1);
   }
   .qhead .qno{
-    font-family:var(--display); font-weight:600; font-size:13px;
-    letter-spacing:.2em; color:var(--gold); text-transform:uppercase;
+    font-family:var(--ui); font-weight:600; font-size:13px;
+    letter-spacing:.2em; color:var(--red); text-transform:uppercase;
   }
   .qhead .qtext{
-    font-family:var(--display); font-weight:700;
+    font-family:var(--display); font-weight:700; color:var(--black);
     font-size:clamp(20px,2.7vw,32px); line-height:1.25; margin-top:6px;
   }
 
   .board{
     width:100%; max-width:940px;
-    background:linear-gradient(180deg, rgba(255,209,102,.16), rgba(255,209,102,.05));
-    border:2px solid rgba(255,209,102,.35);
-    border-radius:24px; padding:clamp(12px,1.6vw,20px);
-    box-shadow:0 30px 80px -30px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08);
+    background:var(--white);
+    border:1px solid var(--gray);
+    border-radius:var(--r-lg); padding:clamp(12px,1.6vw,20px);
+    box-shadow:var(--shadow-3);
   }
   .grid{
     display:grid; grid-template-columns:1fr 1fr; gap:clamp(8px,1vw,12px);
@@ -123,7 +131,7 @@
 
   .slot{
     position:relative; height:clamp(52px,6.4vh,72px);
-    border-radius:14px; cursor:pointer; perspective:1000px;
+    border-radius:var(--r-lg); cursor:pointer; perspective:1000px;
     border:none; background:none; padding:0; font-family:inherit; text-align:left;
   }
   .slot-inner{
@@ -132,34 +140,33 @@
   }
   .slot.revealed .slot-inner{transform:rotateX(180deg)}
   .face{
-    position:absolute; inset:0; border-radius:14px;
+    position:absolute; inset:0; border-radius:var(--r-lg);
     display:flex; align-items:center; backface-visibility:hidden;
     -webkit-backface-visibility:hidden;
     padding:0 14px; overflow:hidden;
   }
   .face.front{
-    background:linear-gradient(180deg,var(--slot),#152055);
-    border:1px solid var(--slot-edge);
+    background:var(--gray-100);
+    border:1px solid var(--gray);
     justify-content:center;
   }
   .face.front .rank{
-    font-family:var(--display); font-weight:800;
-    font-size:clamp(22px,3vw,30px); color:var(--gold);
-    text-shadow:0 2px 0 rgba(0,0,0,.3);
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(22px,3vw,30px); color:var(--black);
   }
   .face.back{
     transform:rotateX(180deg);
-    background:linear-gradient(180deg,var(--panel-2),var(--panel-1));
-    color:#022; justify-content:space-between; gap:10px;
+    background:var(--black);
+    color:var(--white); justify-content:space-between; gap:10px;
   }
   .face.back .ans{
     font-family:var(--body); font-weight:600;
     font-size:clamp(14px,1.55vw,19px); line-height:1.15;
   }
   .face.back .pts{
-    font-family:var(--display); font-weight:800;
+    font-family:var(--display); font-weight:700; color:var(--white);
     font-size:clamp(20px,2.4vw,28px);
-    background:rgba(2,34,34,.16); border-radius:10px;
+    background:var(--red); border-radius:var(--r-pill);
     padding:2px 12px; min-width:2.2ch; text-align:center;
   }
 
@@ -171,62 +178,76 @@
   }
   .pot{
     display:flex; align-items:center; gap:12px;
-    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
-    border-radius:16px; padding:8px 16px;
+    background:var(--gray-100); border:1px solid var(--gray);
+    border-radius:var(--r-lg); padding:8px 16px;
   }
-  .pot .lbl{font-family:var(--display); font-weight:600; font-size:12px; color:var(--muted); letter-spacing:.1em}
-  .pot .val{font-family:var(--display); font-weight:800; font-size:clamp(26px,3.2vw,40px); color:var(--gold)}
+  .pot .lbl{font-family:var(--ui); font-weight:600; font-size:12px; color:var(--black); letter-spacing:.1em}
+  .pot .val{font-family:var(--display); font-weight:700; font-size:clamp(26px,3.2vw,40px); color:var(--red)}
 
   .strikes{display:flex; gap:8px}
   .x{
     width:clamp(34px,4vw,46px); height:clamp(34px,4vw,46px);
-    border-radius:12px; border:2px solid rgba(255,77,94,.35);
+    border-radius:var(--r-lg); border:2px solid var(--gray);
     display:flex; align-items:center; justify-content:center;
-    font-family:var(--display); font-weight:800; font-size:clamp(18px,2.4vw,26px);
-    color:rgba(255,77,94,.25); cursor:pointer; transition:all .15s ease;
-    background:transparent;
+    font-family:var(--display); font-weight:700; font-size:clamp(18px,2.4vw,26px);
+    color:var(--gray); cursor:pointer; transition:all .15s ease;
+    background:var(--white);
   }
-  .x.on{color:#fff; background:linear-gradient(180deg,var(--strike),#d62f40); border-color:transparent; box-shadow:0 6px 18px -6px var(--strike)}
+  .x.on{color:var(--white); background:var(--red); border-color:transparent; box-shadow:var(--shadow-1)}
   .x:hover{transform:translateY(-1px)}
 
   .nav{display:flex; gap:10px}
   .btn{
-    font-family:var(--display); font-weight:600; font-size:14px;
-    border:1px solid rgba(255,255,255,.14); cursor:pointer;
-    border-radius:12px; padding:10px 18px;
-    background:rgba(255,255,255,.05); color:var(--paper);
+    font-family:var(--ui); font-weight:600; font-size:14px;
+    border:1px solid var(--gray); cursor:pointer;
+    border-radius:var(--r-lg); padding:10px 18px;
+    background:var(--gray-100); color:var(--black);
     transition:all .12s ease;
   }
-  .btn:hover{background:rgba(255,255,255,.12)}
+  .btn:hover{background:var(--white)}
   .btn:active{transform:scale(.97)}
-  .btn.primary{background:linear-gradient(180deg,var(--gold),var(--gold-deep)); color:var(--ink); border-color:transparent}
-  .btn.ghost{font-size:12px; padding:8px 12px; color:var(--muted)}
+  .btn.primary{background:var(--red); color:var(--white); border-color:transparent}
+  .btn.ghost{font-size:12px; padding:8px 12px; color:var(--gray); background:transparent; border-color:var(--gray)}
 
   /* ---------- strike overlay ---------- */
   .overlay{
     position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-    background:rgba(5,8,24,.55); backdrop-filter:blur(2px);
+    background:rgba(16,24,32,.7);
     opacity:0; pointer-events:none; transition:opacity .18s ease; z-index:50;
   }
   .overlay.show{opacity:1}
   .bigx{
-    font-family:var(--display); font-weight:800; color:var(--strike);
+    font-family:var(--display); font-weight:700; color:var(--red);
     font-size:min(46vw,340px); line-height:1;
-    text-shadow:0 0 60px rgba(255,77,94,.6);
     animation:pop .3s cubic-bezier(.2,1.4,.4,1);
   }
   @keyframes pop{0%{transform:scale(.3); opacity:0} 60%{transform:scale(1.12)} 100%{transform:scale(1)}}
 
   .note{
-    font-family:var(--body); font-size:12px; color:var(--muted);
+    font-family:var(--body); font-size:12px; color:var(--gray);
     text-align:center; padding:14px 20px 22px; max-width:760px; margin:0 auto;
   }
-  .note b{color:var(--gold); font-weight:600}
+  .note b{color:var(--red); font-weight:600}
+  /* ---------- timer ---------- */
+  .timer-wrap{
+    display:flex; align-items:center; gap:10px;
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+    border-radius:16px; padding:8px 16px;
+  }
+  .timer-lbl{font-family:var(--display); font-weight:600; font-size:12px; color:var(--muted); letter-spacing:.1em}
+  .timer-val{
+    font-family:var(--display); font-weight:800; font-size:clamp(26px,3.2vw,40px);
+    color:var(--gold); min-width:2ch; text-align:center;
+    transition:color .2s ease;
+  }
+  .timer-val.urgent{color:var(--strike)}
+  .timer-btn{padding:6px 12px; font-size:13px}
+
   .audio-toggle{
     position:fixed; top:14px; right:14px; z-index:40;
-    font-family:var(--display); font-size:11px; color:var(--muted);
-    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-    border-radius:20px; padding:6px 12px; cursor:pointer;
+    font-family:var(--ui); font-size:11px; color:var(--black);
+    background:var(--gray-100); border:1px solid var(--gray);
+    border-radius:var(--r-pill); padding:6px 12px; cursor:pointer;
   }
 </style>
 </head>
@@ -274,6 +295,12 @@
       <div class="pot">
         <span class="lbl">คะแนนรอบนี้</span>
         <span class="val" id="potVal">0</span>
+      </div>
+
+      <div class="timer-wrap">
+        <span class="timer-lbl">จับเวลา</span>
+        <span class="timer-val" id="timerVal">--</span>
+        <button class="btn timer-btn" id="timerBtn">▶</button>
       </div>
 
       <div class="strikes" id="strikes">
@@ -374,6 +401,8 @@ function loadQuestion(){
   renderPips();
   $('potVal').textContent = pot;
   $('prevBtn').disabled = idx===0;
+  timerReset();
+  if(TIMER.autoStart) timerStart();
 }
 
 function toggleSlot(i){
@@ -446,6 +475,49 @@ document.addEventListener('keydown',e=>{
   else if(/^[1-6]$/.test(e.key)){ const i=+e.key-1; if(i<QUESTIONS[idx].a.length) toggleSlot(i); }
   else if(e.key.toLowerCase()==='x'){ const f=strikes.findIndex(s=>!s); if(f>=0) addStrike(f); }
 });
+
+/* ---------- timer ---------- */
+let timerInterval = null;
+let timerRemaining = 0;
+
+function timerReset(){
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerRemaining = TIMER.countdownTime;
+  const el = $('timerVal');
+  el.textContent = timerRemaining;
+  el.classList.remove('urgent');
+  $('timerBtn').textContent = '▶';
+}
+
+function timerStart(){
+  if(timerInterval) return;
+  if(timerRemaining <= 0) timerRemaining = TIMER.countdownTime;
+  $('timerBtn').textContent = '⏹';
+  timerInterval = setInterval(()=>{
+    timerRemaining--;
+    const el = $('timerVal');
+    el.textContent = timerRemaining;
+    el.classList.toggle('urgent', timerRemaining <= 5);
+    if(timerRemaining <= 0){
+      clearInterval(timerInterval);
+      timerInterval = null;
+      $('timerBtn').textContent = '▶';
+      const f = strikes.findIndex(s=>!s);
+      if(f >= 0) addStrike(f);
+    }
+  }, 1000);
+}
+
+function timerStop(){
+  clearInterval(timerInterval);
+  timerInterval = null;
+  $('timerBtn').textContent = '▶';
+}
+
+$('timerBtn').onclick = ()=>{
+  if(timerInterval){ timerStop(); } else { timerStart(); }
+};
 
 function renderBrand(){
   $('brandEyebrow').textContent = BRAND.eyebrow;
