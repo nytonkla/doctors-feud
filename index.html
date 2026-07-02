@@ -454,6 +454,7 @@ document.querySelectorAll('.x').forEach(el=> el.onclick=()=>addStrike(+el.datase
 document.querySelectorAll('.pot-btn').forEach(b=> b.onclick=()=>{
   if(b.dataset.team==='A'){ scoreA+=pot; $('scoreA').textContent=scoreA; }
   else { scoreB+=pot; $('scoreB').textContent=scoreB; }
+  pot=0; QUESTIONS[idx]._pot=0; $('potVal').textContent=0;
   beep('reveal');
 });
 $('audioToggle').onclick=()=>{
