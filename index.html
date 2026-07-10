@@ -253,7 +253,7 @@
       <span class="score" id="scoreA">0</span>
       <div style="display:flex;flex-direction:column;gap:4px">
         <input class="name-input" id="nameA" value="ทีมซ้าย" aria-label="ชื่อทีมซ้าย">
-        <button class="pot-btn" data-team="A">+ รับคะแนนรอบ</button>
+        <button class="pot-btn" data-team="A" title="ทีมซ้ายรับคะแนน [a]">+ รับคะแนนรอบ</button>
       </div>
     </div>
 
@@ -265,7 +265,7 @@
     <div class="team right" id="teamB">
       <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
         <input class="name-input" id="nameB" value="ทีมขวา" style="text-align:right" aria-label="ชื่อทีมขวา">
-        <button class="pot-btn" data-team="B">+ รับคะแนนรอบ</button>
+        <button class="pot-btn" data-team="B" title="ทีมขวารับคะแนน [b]">+ รับคะแนนรอบ</button>
       </div>
       <span class="score" id="scoreB">0</span>
     </div>
@@ -294,7 +294,8 @@
       <div class="timer-wrap">
         <span class="timer-lbl">จับเวลา</span>
         <span class="timer-val" id="timerVal">--</span>
-        <button class="btn timer-btn" id="timerBtn">▶</button>
+        <button class="btn timer-btn" id="timerBtn" title="เริ่ม/หยุด [t]">▶</button>
+        <button class="btn timer-btn" id="timerResetBtn" title="รีเซ็ตเวลา [r]">⟳</button>
       </div>
 
       <div class="strikes" id="strikes">
@@ -310,15 +311,15 @@
     </div>
 
     <div class="ctrlbar" style="margin-top:8px">
-      <button class="btn ghost" id="revealAll">เปิดทุกช่อง</button>
-      <button class="btn ghost" id="resetRound">เริ่มรอบนี้ใหม่</button>
-      <button class="btn ghost" id="resetGame">ล้างคะแนนทั้งเกม</button>
+      <button class="btn ghost" id="revealAll" title="เปิดทุกช่อง [0]">เปิดทุกช่อง</button>
+      <button class="btn ghost" id="resetRound" title="เริ่มรอบนี้ใหม่ [Backspace]">เริ่มรอบนี้ใหม่</button>
+      <button class="btn ghost" id="undoScore" title="เลิกทำคะแนนล่าสุด [u]">↩ เลิกทำ</button>
+      <button class="btn ghost" id="resetGame" title="ล้างคะแนนทั้งเกม">ล้างคะแนนทั้งเกม</button>
     </div>
 
     <p class="note">
-      วิธีเล่น: อ่านคำถาม ให้ผู้เล่นทาย แล้ว<b>คลิกช่อง</b>เพื่อเปิดคำตอบ — คะแนนจะสะสมใน "คะแนนรอบนี้"
-      ทายผิดกด <b>✕</b> (สูงสุด 3 ครั้ง) เมื่อจบรอบกด <b>+ รับคะแนนรอบ</b> ให้ทีมที่ชนะ ·
-      คะแนนอ้างอิงจากการฟังเสียงโซเชียลไทย ไม่ใช่ข้อเท็จจริงทางคลินิก
+      <b>← →</b> เลื่อนข้อ · <b>1–8</b> เปิดช่อง · <b>x</b> strike · <b>t</b> จับเวลา · <b>r</b> รีเซ็ตเวลา ·
+      <b>a</b> ทีมซ้ายรับคะแนน · <b>b</b> ทีมขวารับคะแนน · <b>u</b> เลิกทำ · <b>0</b> เปิดทุกช่อง · <b>Backspace</b> เริ่มรอบใหม่
     </p>
   </main>
 
@@ -329,10 +330,11 @@
 let idx = 0;
 let pot = 0;
 let scoreA = 0, scoreB = 0;
-let revealed = [];          // per current question
+let revealed = [];
 let strikes = [false,false,false];
-let doneRounds = new Set(); // questions fully revealed at least once
+let doneRounds = new Set();
 let soundOn = true;
+let lastScoreAction = null; // { team:'A'|'B', amount:number } for undo
 
 const $ = id => document.getElementById(id);
 
@@ -366,7 +368,6 @@ function renderPips(){
 
 function loadQuestion(){
   const Q = QUESTIONS[idx];
-  revealed = revealed.length===Q.a.length ? revealed : new Array(Q.a.length).fill(false);
   if(!QUESTIONS[idx]._rev) QUESTIONS[idx]._rev = new Array(Q.a.length).fill(false);
   revealed = QUESTIONS[idx]._rev;
   strikes = QUESTIONS[idx]._str || [false,false,false];
@@ -401,7 +402,7 @@ function loadQuestion(){
 
 function toggleSlot(i){
   const Q=QUESTIONS[idx];
-  if(revealed[i]) return;          // reveal-only, no un-reveal by tap
+  if(i >= Q.a.length || revealed[i]) return;
   revealed[i]=true;
   pot += Q.a[i][1];
   QUESTIONS[idx]._pot = pot;
@@ -428,6 +429,26 @@ function flashX(){
   setTimeout(()=>o.classList.remove('show'),650);
 }
 
+/* ---------- claim pot ---------- */
+function claimPot(team){
+  if(pot===0) return;
+  lastScoreAction = { team, amount: pot };
+  if(team==='A'){ scoreA+=pot; $('scoreA').textContent=scoreA; }
+  else          { scoreB+=pot; $('scoreB').textContent=scoreB; }
+  pot=0; QUESTIONS[idx]._pot=0; $('potVal').textContent=0;
+  beep('reveal');
+}
+
+/* ---------- undo ---------- */
+function undoScore(){
+  if(!lastScoreAction) return;
+  const { team, amount } = lastScoreAction;
+  if(team==='A'){ scoreA=Math.max(0,scoreA-amount); $('scoreA').textContent=scoreA; }
+  else          { scoreB=Math.max(0,scoreB-amount); $('scoreB').textContent=scoreB; }
+  pot=amount; QUESTIONS[idx]._pot=amount; $('potVal').textContent=amount;
+  lastScoreAction=null;
+}
+
 /* ---------- controls ---------- */
 $('nextBtn').onclick=()=>{ idx=(idx+1)%QUESTIONS.length; loadQuestion(); };
 $('prevBtn').onclick=()=>{ if(idx>0){idx--; loadQuestion();} };
@@ -446,29 +467,33 @@ $('resetRound').onclick=()=>{
 $('resetGame').onclick=()=>{
   if(!confirm('ล้างคะแนนทั้งเกมและเปิดคำถามใหม่ทั้งหมด?')) return;
   QUESTIONS.forEach(Q=>{ Q._rev=new Array(Q.a.length).fill(false); Q._str=[false,false,false]; Q._pot=0; });
-  scoreA=0; scoreB=0; doneRounds=new Set(); idx=0;
+  scoreA=0; scoreB=0; doneRounds=new Set(); idx=0; lastScoreAction=null;
   $('scoreA').textContent=0; $('scoreB').textContent=0;
   loadQuestion();
 };
+$('undoScore').onclick=()=>undoScore();
 document.querySelectorAll('.x').forEach(el=> el.onclick=()=>addStrike(+el.dataset.i));
-document.querySelectorAll('.pot-btn').forEach(b=> b.onclick=()=>{
-  if(b.dataset.team==='A'){ scoreA+=pot; $('scoreA').textContent=scoreA; }
-  else { scoreB+=pot; $('scoreB').textContent=scoreB; }
-  pot=0; QUESTIONS[idx]._pot=0; $('potVal').textContent=0;
-  beep('reveal');
-});
+document.querySelectorAll('.pot-btn').forEach(b=> b.onclick=()=>claimPot(b.dataset.team));
 $('audioToggle').onclick=()=>{
   soundOn=!soundOn;
   $('audioToggle').textContent = soundOn ? '🔊 เสียง: เปิด' : '🔇 เสียง: ปิด';
 };
 
-/* keyboard: ← → navigate, 1-6 reveal, x strike */
+/* ---------- keyboard ---------- */
 document.addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT') return;
-  if(e.key==='ArrowRight') $('nextBtn').click();
-  else if(e.key==='ArrowLeft') $('prevBtn').click();
-  else if(/^[1-6]$/.test(e.key)){ const i=+e.key-1; if(i<QUESTIONS[idx].a.length) toggleSlot(i); }
-  else if(e.key.toLowerCase()==='x'){ const f=strikes.findIndex(s=>!s); if(f>=0) addStrike(f); }
+  const k=e.key;
+  if(k==='ArrowRight')              { $('nextBtn').click(); }
+  else if(k==='ArrowLeft')          { $('prevBtn').click(); }
+  else if(/^[1-8]$/.test(k))       { toggleSlot(+k-1); }
+  else if(k.toLowerCase()==='x')   { const f=strikes.findIndex(s=>!s); if(f>=0) addStrike(f); }
+  else if(k.toLowerCase()==='t')   { if(timerInterval){ timerStop(); } else { timerStart(); } }
+  else if(k.toLowerCase()==='r')   { timerReset(); }
+  else if(k.toLowerCase()==='a')   { claimPot('A'); }
+  else if(k.toLowerCase()==='b')   { claimPot('B'); }
+  else if(k.toLowerCase()==='u')   { undoScore(); }
+  else if(k==='0')                  { $('revealAll').click(); }
+  else if(k==='Backspace')          { $('resetRound').click(); }
 });
 
 /* ---------- timer ---------- */
@@ -510,9 +535,8 @@ function timerStop(){
   $('timerBtn').textContent = '▶';
 }
 
-$('timerBtn').onclick = ()=>{
-  if(timerInterval){ timerStop(); } else { timerStart(); }
-};
+$('timerBtn').onclick = ()=>{ if(timerInterval){ timerStop(); } else { timerStart(); } };
+$('timerResetBtn').onclick = ()=>timerReset();
 
 function renderBrand(){
   $('brandEyebrow').textContent = BRAND.eyebrow;
